@@ -1,0 +1,98 @@
+{
+  "name": "cyclematic-complexity",
+  "displayName": "Cyclomatic Complexity Analyzer",
+  "description": "Analyze and visualize cyclomatic complexity in your code",
+  "version": "0.0.1",
+  "publisher": "your-publisher-name",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters"
+  ],
+  "activationEvents": [
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescriptreact",
+    "onLanguage:python"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "cyclematicComplexity.analyze",
+        "title": "Analyze Cyclomatic Complexity"
+      },
+      {
+        "command": "cyclematicComplexity.showReport",
+        "title": "Show Complexity Report"
+      }
+    ],
+    "configuration": {
+      "title": "Cyclomatic Complexity",
+      "properties": {
+        "cyclematicComplexity.threshold": {
+          "type": "number",
+          "default": 10,
+          "description": "Complexity threshold for low/medium boundary"
+        },
+        "cyclematicComplexity.highThreshold": {
+          "type": "number",
+          "default": 15,
+          "description": "Complexity threshold for medium/high boundary"
+        },
+        "cyclematicComplexity.enableDecorations": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show complexity decorations in editor"
+        },
+        "cyclematicComplexity.showBreakdown": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show detailed breakdown in output"
+        },
+        "cyclematicComplexity.python.countBooleanOperators": {
+          "type": "boolean",
+          "default": true,
+          "description": "Count 'and'/'or' operators in Python (disable for strict McCabe)"
+        },
+        "cyclematicComplexity.python.countComprehensions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Count list/dict/set comprehensions in Python"
+        },
+        "cyclematicComplexity.python.countAssert": {
+          "type": "boolean",
+          "default": false,
+          "description": "Count assert statements in Python"
+        },
+        "cyclematicComplexity.python.pythonPath": {
+          "type": "string",
+          "default": "python3",
+          "description": "Path to Python executable (use 'python3' or full path)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.1",
+    "@types/vscode": "^1.105.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "eslint": "^9.38.0",
+    "typescript": "^5.9.3",
+    "vscode-test": "^1.6.1"
+  },
+  "dependencies": {
+    "@babel/parser": "^7.28.5",
+    "@babel/traverse": "^7.28.5"
+  }
+}

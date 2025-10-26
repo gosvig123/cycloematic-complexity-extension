@@ -1,0 +1,15 @@
+{
+  "name": "Project Custom Configuration",
+  "description": "Custom complexity settings for this project",
+  "countIf": true,
+  "countWhile": true,
+  "countFor": true,
+  "countExcept": true,
+  "countAssert": false,
+  "countBoolOp": true,
+  "countTernary": true,
+  "countComprehension": true,
+  "countComprehensionIf": true,
+  "countMatch": true,
+  "countWith": false
+}

@@ -1,0 +1,45 @@
+{
+  "python": {
+    "countIf": true,
+    "countElif": true,
+    "countWhile": true,
+    "countFor": true,
+    "countExcept": true,
+    "countAssert": false,
+    "countBoolOp": true,
+    "countTernary": true,
+    "countComprehension": true,
+    "countComprehensionIf": true,
+    "countMatch": true,
+    "countWith": false,
+    "countListComprehension": true,
+    "countDictComprehension": true,
+    "countSetComprehension": true,
+    "countGeneratorExpression": true
+  },
+  "javascript": {
+    "countIf": true,
+    "countWhile": true,
+    "countFor": true,
+    "countForIn": true,
+    "countForOf": true,
+    "countDoWhile": true,
+    "countSwitch": false,
+    "countCase": true,
+    "countCatch": true,
+    "countLogicalAnd": true,
+    "countLogicalOr": true,
+    "countNullishCoalescing": true,
+    "countTernary": true
+  },
+  "thresholds": {
+    "low": 10,
+    "medium": 15,
+    "high": 20
+  },
+  "display": {
+    "sortBy": "complexity",
+    "showDetails": false,
+    "groupByComplexity": false
+  }
+}
