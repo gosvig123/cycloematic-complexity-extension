@@ -99,7 +99,40 @@ export function activate(context: vscode.ExtensionContext) {
         }
     );
 
-    // Auto-analyze on file save (optional)
+    // Update decorations when file changes
+    let updateTimeout: NodeJS.Timeout | undefined;
+    const changeListener = vscode.workspace.onDidChangeTextDocument(async (event) => {
+        const config = vscode.workspace.getConfiguration('cyclematicComplexity');
+        const enableDecorations = config.get('enableDecorations', true);
+        
+        if (!enableDecorations) {
+            return;
+        }
+
+        const editor = vscode.window.activeTextEditor;
+        if (editor && editor.document === event.document) {
+            // Debounce updates to avoid analyzing on every keystroke
+            if (updateTimeout) {
+                clearTimeout(updateTimeout);
+            }
+            
+            updateTimeout = setTimeout(async () => {
+                const supportedLanguages = analyzer.getSupportedLanguages();
+                if (supportedLanguages.includes(event.document.languageId)) {
+                    try {
+                        // Pass cursor position for incremental analysis
+                        const cursorPosition = editor.selection.active;
+                        const results = await analyzer.analyzeDocument(event.document, cursorPosition);
+                        decorator.applyDecorations(editor, results);
+                    } catch (error) {
+                        console.error('Error updating complexity decorations:', error);
+                    }
+                }
+            }, 500); // Wait 500ms after typing stops
+        }
+    });
+
+    // Auto-analyze on file save
     const saveListener = vscode.workspace.onDidSaveTextDocument(async (document) => {
         const config = vscode.workspace.getConfiguration('cyclematicComplexity');
         const enableOnSave = config.get('analyzeOnSave', false);
@@ -113,7 +146,32 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    context.subscriptions.push(analyzeCommand, reportCommand, saveListener);
+    // Update decorations when switching editors
+    const editorChangeListener = vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+        const config = vscode.workspace.getConfiguration('cyclematicComplexity');
+        const enableDecorations = config.get('enableDecorations', true);
+        
+        if (!enableDecorations || !editor) {
+            return;
+        }
+
+        const supportedLanguages = analyzer.getSupportedLanguages();
+        if (supportedLanguages.includes(editor.document.languageId)) {
+            try {
+                const results = await analyzer.analyzeDocument(editor.document);
+                decorator.applyDecorations(editor, results);
+            } catch (error) {
+                console.error('Error analyzing complexity on editor change:', error);
+            }
+        }
+    });
+
+    // Clear cache when document is closed to free memory
+    const closeListener = vscode.workspace.onDidCloseTextDocument((document) => {
+        analyzer.clearCache(document);
+    });
+
+    context.subscriptions.push(analyzeCommand, reportCommand, saveListener, changeListener, editorChangeListener, closeListener);
 }
 
 export function deactivate() {

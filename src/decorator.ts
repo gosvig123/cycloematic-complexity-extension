@@ -44,8 +44,57 @@ export class ComplexityDecorator {
         const highDecorations: vscode.DecorationOptions[] = [];
 
         results.forEach(result => {
-            const position = editor.document.positionAt(result.startOffset);
-            const range = new vscode.Range(position, position);
+            // Get the line where the function is defined
+            const startPosition = editor.document.positionAt(result.startOffset);
+            let currentLine = startPosition.line;
+            let decorationPosition = editor.document.lineAt(currentLine).range.end;
+            
+            // Search for the end of the function signature (may span multiple lines)
+            // Look for opening brace { or colon : that marks the start of function body
+            let found = false;
+            const maxLinesToSearch = 10; // Limit search to avoid performance issues
+            
+            for (let i = 0; i < maxLinesToSearch && currentLine + i < editor.document.lineCount; i++) {
+                const line = editor.document.lineAt(currentLine + i);
+                const lineText = line.text;
+                
+                // For JavaScript/TypeScript, find the opening brace
+                const braceIndex = lineText.indexOf('{');
+                if (braceIndex !== -1) {
+                    decorationPosition = new vscode.Position(currentLine + i, braceIndex);
+                    found = true;
+                    break;
+                }
+                
+                // For Python, find the colon (but skip type hints with colons)
+                // Look for the last colon on the line, which should be the function definition colon
+                const colonIndex = lineText.lastIndexOf(':');
+                if (colonIndex !== -1) {
+                    // Make sure it's not a type hint colon (which would have text after it like ": int")
+                    const afterColon = lineText.substring(colonIndex + 1).trim();
+                    // If nothing after colon except maybe comments, it's the function definition
+                    if (afterColon === '' || afterColon.startsWith('#')) {
+                        decorationPosition = new vscode.Position(currentLine + i, colonIndex);
+                        found = true;
+                        break;
+                    }
+                }
+                
+                // For arrow functions, find =>
+                const arrowIndex = lineText.indexOf('=>');
+                if (arrowIndex !== -1) {
+                    decorationPosition = new vscode.Position(currentLine + i, arrowIndex + 2);
+                    found = true;
+                    break;
+                }
+            }
+            
+            // If we didn't find a marker, just use the end of the first line
+            if (!found) {
+                decorationPosition = editor.document.lineAt(startPosition.line).range.end;
+            }
+
+            const range = new vscode.Range(decorationPosition, decorationPosition);
 
             const decoration: vscode.DecorationOptions = {
                 range,
